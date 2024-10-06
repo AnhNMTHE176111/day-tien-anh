@@ -2,52 +2,117 @@ const express = require("express");
 const ProductModel = require("../model/product.model");
 const productRouter = express.Router();
 // use
-productRouter.get("/product", async (req, res) => {
-  const data = await ProductModel.find();
-  return res.status(200).json({
-    data,
-  });
-});
+// productRouter.get("/product", async (req, res) => {
+//   const data = await ProductModel.find();
+//   return res.status(200).json({
+//     data,
+//   });
+// });
 
-productRouter.get("/product/:id", (req, res) => {
-  const id = req.params.id;
-  return res.status(200).json({
-    product_detail: `This is product detail with id: ${id}`,
-  });
-});
+// productRouter.get("/product/:id", (req, res) => {
+//   const id = req.params.id;
+//   return res.status(200).json({
+//     product_detail: `This is product detail with id: ${id}`,
+//   });
+// });
 
 /**
  * userRole
  * name
  * attribute
+ * key = value
+ * tài liệu rds,...
  */
-productRouter.post(
-  "/product",
-  (req, res, next) => {
-    if (req.body.userRole == "admin") {
-      next();
-    } else {
-      return res.status(403).json("ko co quyen");
-    }
-  },
-  async (req, res) => {
-    // B1: Lấy dữ liệu ra
-    const data = req.body;
-    const name = data.name;
-    const attribute = data.attribute;
+productRouter.post("/product", async (req, res, next) => {
+  try {
+    const { nameProduct, attributeProduct, pricePrd } = req.body;
 
-    /** B2: tạo mới product */
     const newProduct = await ProductModel.create({
-      name: req.body.name,
-      attribute: req.body.attribute,
+      name: nameProduct,
+      attribute: attributeProduct,
+      price: pricePrd,
     });
 
-    // B3: trả dữ liệu mới về cho client
     return res.status(201).json({
-      newProduct,
+      data: newProduct,
+      message: "Create new product",
     });
+  } catch (error) {
+    console.log("log from product create", error);
+    next(error);
   }
-);
+});
+
+productRouter.get("/product/:id", async (req, res, next) => {
+  try {
+    // 0, 1
+    const productId = req.params.id;
+    const product = await ProductModel.find(
+      { _id: productId },
+      {
+        // name: 1,
+        _id: 0,
+        __v: 0,
+        attribute: 0,
+        // price: 1,
+      }
+    );
+
+    return res.status(200).json({
+      data: product
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+productRouter.get("/product/", async (req, res, next) => {
+  try {
+    const product = await ProductModel.find();
+    const data = [];
+
+    product.forEach((item) => {
+      data.push({
+        product_name: item.name,
+        price_product: `${item.price / 100}%`,
+      });
+    });
+
+    return res.status(200).json({
+      data: data,
+      message: "Get product success",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+productRouter.put("/product/:id", async (req, res, next) => {
+  try {
+    const productId = req.params.id;
+    const { name, attribute, price } = req.body;
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      productId,
+      {
+        name,
+        attribute,
+        price,
+      },
+      {
+        new: true,
+      }
+    );
+    return res.status(200).json({
+      data: updatedProduct,
+      message: "Update product success",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// C => R => U => D
+
 // entity dessrition <=> table, no quan he voi table
 /**
  * RESTful API

@@ -1,0 +1,103 @@
+mongodb://localhost:27017/tienanh
+
+url = linkDb + DBname
+linkDb = mongodb://localhost:27017
+DBname = tienanh
+
+SQL => Microsoft SQL Server, MySQL
+table => row (value)
+
+NoSQL => MongoDB
+collection => document (value)
+
+=> collection === table
+=> document   === row
+
+===========================================================
+Ví dụ:
+shopDB = user + order + product
+cần 3 collection (table)
+    - user
+    - order
+    - product
+
+==================================
+mỗi giá trị của 1 user
+INSERT INTO TABLE user (fullname, gender, phone) 
+VALUES ('tien anh', 'female', '123456')
+
+1 document {
+    fullname: "tien anh",
+    gender: "female",
+    phone: "123456"
+}
+
+===========================================================
+Có nhiều cách để truyền dữ liệu từ client về server
+
+GET /products/:id/:name/:price
+const {name, price} = req.params;
+const name = req.params.name
+
+GET /products?name=Alo&price=12000
+const {id, name, price} = req.query;
+const id = req.query.id;
+
+POST, PUT, PATCH /products
+const {name, price} = req.body;
+
+
+
+
+===========================================================
+2xx => success
+200 => default success
+201 => create success
+
+3xx => warning
+
+4xx => error
+404 => not found (Người dùng request đến đường dẫn ko tồn tại)
+400 => bad request (người dùng gửi thiếu thông tin)
+500 => internal server
+
+
+{
+    "statusCode": 404,
+    "message": "Not Found"
+}
+
+{
+    err: {
+        "status": 404,
+        "message": "Not Found"
+    }
+}
+
+
+===========================================================
+async/await
+async => define async function
+await => call async function
+
+functionA = Promise()
+    .then((resltA) => {
+        Promise()
+            .then((resltB) => {                
+                Promise()
+                    .then((resltC) => {
+                        
+                    })
+                    .catch()
+            })
+            .catch()
+    })
+    .catch()
+
+=> callback hell
+
+async function test() {
+    const resultA = await functionA();
+    const resultB = await functionB(result);
+    ....
+}
